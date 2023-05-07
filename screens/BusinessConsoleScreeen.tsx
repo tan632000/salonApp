@@ -1,7 +1,7 @@
 /* eslint-disable react-native/no-inline-styles */
 /* eslint-disable prettier/prettier */
 /* eslint-disable semi */
-import React, { ReactNode, useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { View, Text, Button, Image, StyleSheet, ScrollView } from 'react-native'
 import { launchImageLibrary, ImagePickerResponse } from 'react-native-image-picker'
 import { Picker } from '@react-native-picker/picker'
@@ -29,6 +29,7 @@ const BusinessConsoleScreeen: React.FC = () => {
   const [registeredSalon, setRegisteredSalon] = useState(false);
   const [verifiedSalon, setVerifiedSalon] = useState<Salon | null>()
   const [listSalon, setListSalon] = useState([]);
+  const [reset, setReset] = useState(false);
 
   useEffect(() => {
     setSelectedSalon(null)
@@ -43,6 +44,9 @@ const BusinessConsoleScreeen: React.FC = () => {
     .catch(error => {
       console.error(error)
     })
+  }, [reset])
+
+  useEffect(() => {
     axiosClient
       .get('/locations')
       .then(({ data }) => {
@@ -110,7 +114,9 @@ const BusinessConsoleScreeen: React.FC = () => {
       })
       .then((data:any) => {
         if (data.message) {
-          navigationRef.current.navigate('BookingScreen');
+          setTimeout(() => {
+            handleBackToSelection();
+          }, 200)
         }
       })
     }
@@ -121,6 +127,7 @@ const BusinessConsoleScreeen: React.FC = () => {
     setRegisteredSalon(false);
     setVerifiedSalon(null);
     setImage('');
+    setReset(!reset);
   }
 
   return (
@@ -131,24 +138,24 @@ const BusinessConsoleScreeen: React.FC = () => {
             <View style={styles.field}>
               {
                 verifiedSalon.verified && registeredSalon ? (
-                  <>
+                  <View style={styles.content}>
                     <Text>Salon đã được đăng kí thành công.</Text>
                     <Text>Thông tin về Salon đăng ký:</Text>
-                    <Text>{verifiedSalon.salonId.name}</Text>
-                    <Text>{verifiedSalon.salonId.address}</Text>
-                    <Text>{verifiedSalon.salonId.phone}</Text>
-                    <Text>{verifiedSalon.createdAt.replace(/T/, ' ').replace(/\.\d+Z/, '')}</Text>
-                    {image && <Image source={{uri: verifiedSalon.paymentProof}} style={styles.qrCode} />}
-                  </>
+                    <Text>Salon: {verifiedSalon.salonId.name}</Text>
+                    <Text>Địa chỉ: {verifiedSalon.salonId.address}</Text>
+                    <Text>Số điện thoại: {verifiedSalon.salonId.phone}</Text>
+                    <Text>Thời gian đăng kí dịch vụ: {verifiedSalon.createdAt.replace(/T/, ' ').replace(/\.\d+Z/, '')}</Text>
+                      <Image source={{uri: verifiedSalon.paymentProof}} style={styles.qr} />
+                  </View>
                 ) : (
-                  <Text>Salon đã được đăng kí dịch vụ. Hiện tại hệ thống đang xử lí, vui lòng chờ trong 1 ngày.</Text>
+                  <Text style={{fontSize: 18, textAlign: 'center', marginBottom: 15}}>Salon đã được đăng kí dịch vụ. Hiện tại hệ thống đang xử lí, vui lòng chờ liên hệ sau.</Text>
                 )
               }
               <Button title="Turn back" onPress={handleBackToSelection} />
             </View>
           ) : (
             <View style={styles.field}>
-              <Text>Select a Salon:</Text>
+              <Text>Chọn Salon:</Text>
               <Picker
                 selectedValue={selectedSalon?._id}
                 onValueChange={(itemValue: string) => {
@@ -165,17 +172,19 @@ const BusinessConsoleScreeen: React.FC = () => {
               {
                 selectedSalon && (
                   <>
-                    <Text>Salon Information:</Text>
-                    <Text>{selectedSalon.name}</Text>
-                    <Text>{selectedSalon.address}</Text>
-                    <Text>{selectedSalon.phone}</Text>
+                    <Text>Thông tin Salon:</Text>
+                    <Text>Salon: {selectedSalon.name}</Text>
+                    <Text>Địa chỉ: {selectedSalon.address}</Text>
+                    <Text>Số điện thoại: {selectedSalon.phone}</Text>
                     <View style={styles.imageContainer}>
                       <Image source={{ uri: 'https://res.cloudinary.com/c-ng-ty-tnhh-cic-vi-t-nam-chapter/image/upload/v1683033570/e1da691745c09a9ec3d1_akvkhs.jpg' }} style={styles.qrCode} />
+                      {image && <Image source={{uri: image}} style={styles.qrCode} />}
                     </View>
-                    {image && <Image source={{uri: image}} style={styles.qrCode} />}
-                    <Button title="Take Photo" onPress={pickImage} />
-                    <Button title="Submit" onPress={handleSubmit} />
-                    <Button title="Turn back" onPress={handleBackToSelection} />
+                    <View style={styles.fixToText}>
+                      <Button title="Take Photo" onPress={pickImage} />
+                      <Button title="Submit" onPress={handleSubmit} />
+                      <Button title="Turn back" onPress={handleBackToSelection} />
+                    </View>
                   </>
                 )
               }
@@ -190,7 +199,9 @@ const BusinessConsoleScreeen: React.FC = () => {
 const styles = StyleSheet.create({
   scrollContainer: {
     flexGrow: 1,
-    paddingBottom: 20,
+    justifyContent: 'flex-end',
+    paddingHorizontal: 16,
+    paddingBottom: 16,
   },
   container: {
     flex: 1,
@@ -198,7 +209,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   field: {
-    marginBottom: 20,
+    marginBottom: 16,
+  },
+  qr: {
+    width: 300,
+    height: 450,
+    resizeMode: 'contain',
+    marginBottom: 10,
+    marginTop: 20,
+    marginLeft: 20,
   },
   qrCode: {
     width: 300,
@@ -211,6 +230,16 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  fixToText: {
+    flexDirection: 'column',
+    gap: 15,
+  },
+  content: {
+    marginTop: 10,
+    flexDirection: 'column',
+    gap: 10,
+    fontSize: 16,
   },
 })
 

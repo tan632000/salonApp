@@ -3,8 +3,10 @@ import React, {useState, useEffect} from 'react';
 import {View, Text, StyleSheet} from 'react-native';
 import axiosClient from '../apis/axiosClient';
 import {Picker} from '@react-native-picker/picker';
+import ImageSlider from './ImageSlider';
 
 interface Service {
+  [x: string]: string[];
   _id: string;
   name: string;
 }
@@ -52,11 +54,10 @@ export default function ServicePicker({
         ))}
       </Picker>
       {selectedService && (
-        <View style={styles.selectedServiceContainer}>
-          <Text style={styles.selectedServiceText}>
-            Bạn đã chọn dịch vụ: {selectedService.name}
-          </Text>
-        </View>
+        <>
+          <ImageSlider images={selectedService.images} />
+          <Text style={styles.serviceName}>{selectedService.name}</Text>
+        </>
       )}
     </View>
   );
@@ -87,5 +88,10 @@ const styles = StyleSheet.create({
     fontSize: 16,
     textAlign: 'center',
     padding: 10,
+  },
+  serviceName: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginVertical: 10,
   },
 });
