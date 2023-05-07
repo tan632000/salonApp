@@ -25,11 +25,11 @@ export default function ServicePicker({
   useEffect(() => {
     axiosClient
       .get<Service[]>(`/services/${salonId}`)
-      .then(response => {
-        if (Array.isArray(response.data)) {
-          setServices(response.data);
+      .then((data:any) => {
+        if (Array.isArray(data)) {
+          setServices(data);
         } else {
-          console.log('Invalid response from server', response);
+          console.log('Invalid response from server', data);
         }
       })
       .catch(err => console.log(err));

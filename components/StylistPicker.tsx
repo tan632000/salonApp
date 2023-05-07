@@ -29,9 +29,10 @@ export default function StylistPicker({
   );
 
   useEffect(() => {
+    console.log('serviceId', serviceId);
     axiosClient
       .get(`/stylists?serviceId=${serviceId}`)
-      .then(({data}) => {
+      .then((data) => {
         if (Array.isArray(data)) {
           setStylists(data);
         } else {

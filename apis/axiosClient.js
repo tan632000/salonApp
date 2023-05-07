@@ -2,7 +2,7 @@ import axios from 'axios'
 import store from '../redux/store'
 
 const axiosClient = axios.create({
-  baseURL: 'http://192.168.1.10:8600/api/v1',
+  baseURL: 'http://192.168.25.6:8600/api/v1',
   headers: {
     'content-type': 'application/json',
   },

@@ -1,15 +1,20 @@
 /* eslint-disable react-native/no-inline-styles */
 /* eslint-disable prettier/prettier */
 /* eslint-disable semi */
-import React, { useEffect, useState } from 'react'
+import React, { ReactNode, useEffect, useState } from 'react'
 import { View, Text, Button, Image, StyleSheet, ScrollView } from 'react-native'
 import { launchImageLibrary, ImagePickerResponse } from 'react-native-image-picker'
 import { Picker } from '@react-native-picker/picker'
 import axiosClient from '../apis/axiosClient'
 import { useSelector } from 'react-redux'
 import { selectUserId } from '../redux/features/userSlice'
+import { navigationRef } from '../navigation/NavigationService'
 
 interface Salon {
+  [x: string]: any
+  verified: Salon | null | undefined
+  paymentProof: string | undefined
+  salonId: any
   _id: string
   name: string,
   address: string,
@@ -21,8 +26,23 @@ const BusinessConsoleScreeen: React.FC = () => {
   const [image, setImage] = useState<string>('')
   const [salons, setSalons] = useState<Salon[]>([])
   const userId = useSelector(selectUserId);
+  const [registeredSalon, setRegisteredSalon] = useState(false);
+  const [verifiedSalon, setVerifiedSalon] = useState<Salon | null>()
+  const [listSalon, setListSalon] = useState([]);
 
   useEffect(() => {
+    setSelectedSalon(null)
+  }, [])
+
+  useEffect(() => {
+    axiosClient
+    .get('/users/registered-salon')
+    .then((data:any) => {
+      setListSalon(data);
+    })
+    .catch(error => {
+      console.error(error)
+    })
     axiosClient
       .get('/locations')
       .then(({ data }) => {
@@ -33,6 +53,16 @@ const BusinessConsoleScreeen: React.FC = () => {
         setSalons([])
       })
   }, [])
+
+  const checkSalonRegistered = (selected: Salon) => {
+    if (selected.registered) {
+      setRegisteredSalon(true)
+    }
+    const salonReg = listSalon.find((s: Salon) => s.salonId._id === selected._id);
+    if (salonReg) {
+      setVerifiedSalon(salonReg);
+    }
+  }
 
   const pickImage = () => {
     launchImageLibrary({ mediaType: 'photo' }, async (response: ImagePickerResponse) => {
@@ -72,47 +102,85 @@ const BusinessConsoleScreeen: React.FC = () => {
 
   const handleSubmit = () => {
     if (selectedSalon && image) {
-      console.log('Salon:', selectedSalon)
-      console.log('Image:', image)
-      console.log('UserId:', userId);
+      axiosClient
+      .post('/users/register-salon', {
+        salonId: selectedSalon._id,
+        userId: userId,
+        paymentProof: image,
+      })
+      .then((data:any) => {
+        if (data.message) {
+          navigationRef.current.navigate('BookingScreen');
+        }
+      })
     }
+  }
+
+  const handleBackToSelection = () => {
+    setSelectedSalon(null);
+    setRegisteredSalon(false);
+    setVerifiedSalon(null);
+    setImage('');
   }
 
   return (
     <View style={{ flex: 1, justifyContent: 'flex-end' }}>
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         <View style={styles.container}>
-          <View style={styles.field}>
-            <Text>Select a Salon:</Text>
-            <Picker
-              selectedValue={selectedSalon?._id}
-              onValueChange={(itemValue: string) => {
-                const selected = salons.find(s => s._id === itemValue)
-                if (selected) {
-                  setSelectedSalon(selected);
-                } else {
-                  setSelectedSalon(null);
-                }
-              }}>
-              {salons.map(s => (
-                <Picker.Item key={s._id} label={s.name} value={s._id} />
-              ))}
-            </Picker>
-          </View>
-          {selectedSalon && (
+          {verifiedSalon ? (
             <View style={styles.field}>
-              <Text>Salon Information:</Text>
-              <Text>{selectedSalon.name}</Text>
-              <Text>{selectedSalon.address}</Text>
-              <Text>{selectedSalon.phone}</Text>
-              <View style={styles.imageContainer}>
-                <Image source={{ uri: 'https://res.cloudinary.com/c-ng-ty-tnhh-cic-vi-t-nam-chapter/image/upload/v1683033570/e1da691745c09a9ec3d1_akvkhs.jpg' }} style={styles.qrCode} />
-              </View>
-              {image && <Image source={{uri: image}} style={styles.qrCode} />}
-              <Button title="Take Photo" onPress={pickImage} />
+              {
+                verifiedSalon.verified && registeredSalon ? (
+                  <>
+                    <Text>Salon đã được đăng kí thành công.</Text>
+                    <Text>Thông tin về Salon đăng ký:</Text>
+                    <Text>{verifiedSalon.salonId.name}</Text>
+                    <Text>{verifiedSalon.salonId.address}</Text>
+                    <Text>{verifiedSalon.salonId.phone}</Text>
+                    <Text>{verifiedSalon.createdAt.replace(/T/, ' ').replace(/\.\d+Z/, '')}</Text>
+                    {image && <Image source={{uri: verifiedSalon.paymentProof}} style={styles.qrCode} />}
+                  </>
+                ) : (
+                  <Text>Salon đã được đăng kí dịch vụ. Hiện tại hệ thống đang xử lí, vui lòng chờ trong 1 ngày.</Text>
+                )
+              }
+              <Button title="Turn back" onPress={handleBackToSelection} />
+            </View>
+          ) : (
+            <View style={styles.field}>
+              <Text>Select a Salon:</Text>
+              <Picker
+                selectedValue={selectedSalon?._id}
+                onValueChange={(itemValue: string) => {
+                  const selected = salons.find(s => s._id === itemValue)
+                  if (selected) {
+                    setSelectedSalon(selected);
+                    checkSalonRegistered(selected)
+                  }
+                }}>
+                {salons.map(s => (
+                  <Picker.Item key={s._id} label={s.name} value={s._id} />
+                ))}
+              </Picker>
+              {
+                selectedSalon && (
+                  <>
+                    <Text>Salon Information:</Text>
+                    <Text>{selectedSalon.name}</Text>
+                    <Text>{selectedSalon.address}</Text>
+                    <Text>{selectedSalon.phone}</Text>
+                    <View style={styles.imageContainer}>
+                      <Image source={{ uri: 'https://res.cloudinary.com/c-ng-ty-tnhh-cic-vi-t-nam-chapter/image/upload/v1683033570/e1da691745c09a9ec3d1_akvkhs.jpg' }} style={styles.qrCode} />
+                    </View>
+                    {image && <Image source={{uri: image}} style={styles.qrCode} />}
+                    <Button title="Take Photo" onPress={pickImage} />
+                    <Button title="Submit" onPress={handleSubmit} />
+                    <Button title="Turn back" onPress={handleBackToSelection} />
+                  </>
+                )
+              }
             </View>
           )}
-          <Button title="Submit" onPress={handleSubmit} />
         </View>
       </ScrollView>
     </View>
