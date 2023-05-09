@@ -80,7 +80,7 @@ export default function HomeScreen(): JSX.Element {
               }}>
               <View style={{flexDirection: 'column', alignItems: 'center'}}>
                 <View style={styles.smallCard}>
-                  <CalendarIcon style={{width: 15, height: 15}} />
+                  <CalendarIcon />
                 </View>
                 <Text
                   style={{
@@ -434,7 +434,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.grey5,
     justifyContent: 'center',
     alignContent: 'center',
-    padding: 10,
+    paddingLeft: 15,
     width: 60,
     margin: 10,
     height: 60,

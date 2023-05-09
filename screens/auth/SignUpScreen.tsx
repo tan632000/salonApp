@@ -161,11 +161,9 @@ export default function SignUpScreen() {
                   value={props.values.password}
                   secureTextEntry={true}
                 />
-                <Animatable.View
-                  animation={passwordFocussed ? '' : 'fadeInLeft'}
-                  duration={400}>
-                  <VisibilityOffIcon />
-                </Animatable.View>
+              <View style={{right: 10}}>
+                <VisibilityOffIcon />
+              </View>
               </View>
               <View style={styles.view15}>
                 <Text style={styles.text3}>

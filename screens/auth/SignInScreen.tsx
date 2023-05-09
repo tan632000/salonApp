@@ -71,9 +71,7 @@ export default function SignInScreen() {
           />
         </View>
         <View style={styles.textInput2}>
-          <Animatable.View>
-            <PasswordIcon />
-          </Animatable.View>
+          <PasswordIcon />
           <TextInput
             style={{ width: '80%' }}
             placeholder="Mật khẩu"
@@ -88,12 +86,9 @@ export default function SignInScreen() {
             value={password}
             secureTextEntry={true}
           />
-          <Animatable.View
-            animation={textInput2Focussed ? '' : 'fadeInLeft'}
-            duration={400}
-          >
+          <View style={{right: 10}}>
             <VisibilityOffIcon />
-          </Animatable.View>
+          </View>
         </View>
         <View style={{ marginHorizontal: 20, marginTop: 20 }}>
           <Button
