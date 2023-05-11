@@ -187,9 +187,10 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   ratingTitle: {
-    fontSize: 18,
+    fontSize: 15,
     fontWeight: 'bold',
     marginBottom: 10,
+    textAlign: 'center',
   },
   ratingRow: {
     flexDirection: 'column',
@@ -199,6 +200,7 @@ const styles = StyleSheet.create({
   ratingLabel: {
     fontSize: 20,
     fontWeight: '600',
+    textAlign: 'center',
   },
   appointmentContainer: {
     marginBottom: 10,

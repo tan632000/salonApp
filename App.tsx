@@ -46,7 +46,7 @@ function App() {
             <Stack.Screen
               name="ExperienceService"
               component={ExperienceService}
-              options={{ gestureEnabled: false }}
+              options={{ gestureEnabled: false, headerShown: false }}
             />
 
             <Stack.Screen

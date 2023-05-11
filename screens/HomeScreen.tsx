@@ -230,7 +230,7 @@ export default function HomeScreen(): JSX.Element {
                 style={{width: 55, height: 55, borderRadius: 5}}
               />
               <View style={{flex: 1, marginLeft: 20}}>
-                <Text style={{fontWeight: 'bold', fontSize: 14}}>
+                <Text style={{fontWeight: 'bold', fontSize: 14, textAlign: 'center'}}>
                   Mời anh chị đánh giá chất lượng phục vụ
                 </Text>
                 <Text style={{fontSize: 12, marginTop: 5}}>
