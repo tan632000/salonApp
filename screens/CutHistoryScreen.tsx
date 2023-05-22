@@ -11,7 +11,6 @@ import {
   StyleSheet,
   TouchableOpacity,
   TextInput,
-  ScrollView,
 } from 'react-native';
 import axiosClient from '../apis/axiosClient';
 import {selectUserId} from '../redux/features/userSlice';
@@ -87,8 +86,6 @@ const CutHistoryScreen: React.FC = () => {
   };
 
   const renderItem = ({item}: {item: Appointment}) => {
-    setSalonId(item.salonId);
-    setStylistId(item.stylistId);
     return (
       <View style={styles.appointmentContainer}>
         <Text style={styles.appointmentText}>Address: {item.address}</Text>
@@ -99,6 +96,13 @@ const CutHistoryScreen: React.FC = () => {
       </View>
     );
   };
+
+  useEffect(() => {
+    if (appointments.length > 0) {
+      setSalonId(appointments[0].salonId);
+      setStylistId(appointments[0].stylistId);
+    }
+  }, [appointments]);
 
   const handleSubmit = () => {
     // TODO: send salonRating and stylistRating to server
@@ -121,54 +125,62 @@ const CutHistoryScreen: React.FC = () => {
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.scrollContainer}>
-      <View style={styles.container}>
-        <View style={styles.ratingContainer}>
-          <Text style={styles.ratingLabel}>
-            Mời anh đánh giá chất lượng phục vụ
-          </Text>
-          <Text style={styles.ratingTitle}>
-            Phản hồi của anh sẽ giúp chúng em cải thiện chất lượng dịch vụ tốt
-            hơn
-          </Text>
-          <View style={styles.ratingRow}>
-            <Text style={styles.ratingLabel}>Salon:</Text>
-            <AirbnbRating size={35} count={5} onFinishRating={setSalonRating} />
+    <FlatList
+      contentContainerStyle={styles.scrollContainer}
+      data={[{ key: 'content' }]}
+      renderItem={() => (
+        <View style={styles.container}>
+          <View style={styles.ratingContainer}>
+            <Text style={styles.ratingLabel}>
+              Mời anh đánh giá chất lượng phục vụ
+            </Text>
+            <Text style={styles.ratingTitle}>
+              Phản hồi của anh sẽ giúp chúng em cải thiện chất lượng dịch vụ tốt hơn
+            </Text>
+            <View style={styles.ratingRow}>
+              <Text style={styles.ratingLabel}>Salon:</Text>
+              <AirbnbRating size={35} count={5} onFinishRating={setSalonRating} />
+            </View>
+            <View style={styles.ratingRow}>
+              <Text style={styles.ratingLabel}>Stylist:</Text>
+              <AirbnbRating
+                size={35}
+                count={5}
+                onFinishRating={setStylistRating}
+              />
+            </View>
+            <View style={styles.ratingRow}>
+              <Text style={styles.ratingLabel}>Comment:</Text>
+              <TextInput
+                style={styles.commentInput}
+                placeholder="Anh chị cho chúng em xin góp ý về trải nghiệm dùng dịch vụ để chúng em cải thiện thêm ạ."
+                onChangeText={setComment}
+                value={comment}
+                multiline
+                numberOfLines={4}
+              />
+            </View>
+            <TouchableOpacity style={styles.button} onPress={handleSubmit}>
+              <Text style={styles.buttonText}>LƯU ĐÁNH GIÁ</Text>
+            </TouchableOpacity>
           </View>
-          <View style={styles.ratingRow}>
-            <Text style={styles.ratingLabel}>Stylist:</Text>
-            <AirbnbRating
-              size={35}
-              count={5}
-              onFinishRating={setStylistRating}
-            />
-          </View>
-          <View style={styles.ratingRow}>
-            <Text style={styles.ratingLabel}>Comment:</Text>
-            <TextInput
-              style={styles.commentInput}
-              placeholder="Anh chị cho chúng em xin góp ý về trải nghiệm dùng dịch vụ để chúng em cải thiện thêm ạ."
-              onChangeText={setComment}
-              value={comment}
-              multiline
-              numberOfLines={4}
-            />
-          </View>
-          <TouchableOpacity style={styles.button} onPress={handleSubmit}>
-            <Text style={styles.buttonText}>LƯU ĐÁNH GIÁ</Text>
-          </TouchableOpacity>
+          {
+            commented.length > 0 && (
+            <>
+              <CommentList />
+              <View style={styles.appointmentContainer}>
+                <Text style={styles.appointmentTitle}>Appointment Details:</Text>
+                <FlatList
+                  data={appointments}
+                  keyExtractor={item => item.id.toString()}
+                  renderItem={renderItem} />
+              </View>
+            </>
+            )
+          }
         </View>
-        <CommentList />
-        <View style={styles.appointmentContainer}>
-          <Text style={styles.appointmentTitle}>Appointment Details:</Text>
-          <FlatList
-            data={appointments}
-            keyExtractor={item => item.id.toString()}
-            renderItem={renderItem}
-          />
-        </View>
-      </View>
-    </ScrollView>
+      )}
+    />
   );
 };
 
