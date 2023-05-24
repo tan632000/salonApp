@@ -13,7 +13,6 @@ import {
 } from 'react-native';
 import {Button} from 'react-native-elements';
 import * as Animatable from 'react-native-animatable';
-import {Formik} from 'formik';
 import {navigationRef} from '../../navigation/NavigationService';
 import axiosClient from '../../apis/axiosClient';
 import {setUser} from '../../redux/features/userSlice';
@@ -22,33 +21,22 @@ import EmailIcon from '../../assets/icons/email.svg';
 import LockIcon from '../../assets/icons/password.svg';
 import VisibilityOffIcon from '../../assets/icons/visibility-off.svg';
 
-interface SignUpValues {
-  phone_number: string;
-  name: string;
-  family_name: string;
-  password: string;
-  email: string;
-  username: string;
-  age: string;
-}
-
-const initialValues: SignUpValues = {
-  phone_number: '',
-  name: '',
-  family_name: '',
-  password: '',
-  email: '',
-  username: '',
-  age: '',
-};
-
 export default function SignUpScreen() {
   const [passwordFocussed, setPasswordFocussed] = useState(false);
+  const [formData, setFormData] = useState({
+    phone_number: '',
+    name: '',
+    family_name: '',
+    age: '',
+    email: '',
+    password: '',
+  });
+  const [message, setMessage] = useState('');
   const dispatch = useDispatch();
 
-  function signUp(data: SignUpValues) {
+  function signUp() {
     try {
-      const {email, password, family_name, name, phone_number, age} = data;
+      const {email, password, family_name, name, phone_number, age} = formData;
       axiosClient
         .post('/users/register', {
           email,
@@ -73,8 +61,28 @@ export default function SignUpScreen() {
             );
           }
         })
-        .catch(err => {
-          console.log(err);
+        .catch(error => {
+          if (error.response) {
+            console.log(1111);
+            // The request was made and the server responded with a status code
+            const { data } = error.response;
+            setMessage(data.message);
+          } else if (error.request) {
+            console.log('====================================');
+            console.log(222);
+            console.log('====================================');
+            // The request was made but no response was received
+            console.log('Request Error:', error.request);
+            setMessage(error.request);
+            // ...
+          } else {
+            console.log('====================================');
+            console.log(333);
+            console.log('====================================');
+            // Something happened in setting up the request
+            console.log('Error:', error.message);
+            setMessage(error.message);
+          }
         });
     } catch (error:any) {
       Alert.alert(error.name, error.message);
@@ -86,110 +94,122 @@ export default function SignUpScreen() {
         <View style={styles.view1}>
           <Text style={styles.text1}>Đăng ký</Text>
         </View>
-        <Formik
-          initialValues={initialValues}
-          onSubmit={values => signUp(values)}>
-          {props => (
-            <View style={styles.view2}>
-              <View>
-                <Text style={styles.text2}>Bạn là người mới ?</Text>
-              </View>
-              <View style={styles.view6}>
-                <TextInput
-                  style={styles.input1}
-                  placeholder="Số điện thoại"
-                  onChangeText={props.handleChange('phone_number')}
-                  keyboardType="number-pad"
-                  autoFocus={true}
-                  value={props.values.phone_number}
-                />
-              </View>
-              <View style={styles.view6}>
-                <TextInput
-                  style={styles.input1}
-                  placeholder="Tên"
-                  onChangeText={props.handleChange('name')}
-                  value={props.values.name}
-                />
-              </View>
-              <View style={styles.view6}>
-                <TextInput
-                  style={styles.input1}
-                  placeholder="Họ"
-                  autoFocus={false}
-                  onChangeText={props.handleChange('family_name')}
-                  value={props.values.family_name}
-                />
-              </View>
-              <View style={styles.view6}>
-                <TextInput
-                  style={styles.input1}
-                  placeholder="Tuổi"
-                  autoFocus={false}
-                  keyboardType="number-pad"
-                  onChangeText={props.handleChange('age')}
-                  value={props.values.age}
-                />
-              </View>
-              <View style={styles.view10}>
-                <View>
-                  <EmailIcon />
-                </View>
-                <View style={styles.view11}>
-                  <TextInput
-                    style={styles.input4}
-                    placeholder="Email"
-                    autoFocus={false}
-                    onChangeText={props.handleChange('email')}
-                    value={props.values.email}
-                  />
-                </View>
-              </View>
-              <View style={styles.view14}>
-                <Animatable.View
-                  animation={passwordFocussed ? 'fadeInRight' : 'fadeInLeft'}
-                  duration={400}>
-                  <LockIcon />
-                </Animatable.View>
-                <TextInput
-                  style={{flex: 1}}
-                  placeholder="Mật khẩu"
-                  onFocus={() => {
-                    setPasswordFocussed(true);
-                  }}
-                  onChangeText={props.handleChange('password')}
-                  value={props.values.password}
-                  secureTextEntry={true}
-                />
-              <View style={{right: 10}}>
-                <VisibilityOffIcon />
-              </View>
-              </View>
-              <View style={styles.view15}>
-                <Text style={styles.text3}>
-                  {' '}
-                  Bằng cách tạo hoặc đăng nhập vào tài khoản, bạn
-                </Text>
-                <View style={styles.view16}>
-                  <Text style={styles.text3}>đồng ý với</Text>
-                  <Text style={styles.text4}> Điều khoản & Điều kiện</Text>
-                  <Text style={styles.text3}> và</Text>
-                </View>
-                <Text style={styles.text4}>
-                  Tuyên bố về quyền riêng tư của chúng tôi
-                </Text>
-              </View>
-              <View style={styles.view17}>
-                <Button
-                  title="Tạo tài khoản"
-                  buttonStyle={styles.button1}
-                  titleStyle={styles.title1}
-                  onPress={() => props.handleSubmit}
-                />
-              </View>
+        <View style={styles.view2}>
+          <View>
+            <Text style={styles.text2}>Bạn là người mới ?</Text>
+          </View>
+          {message !== '' && (
+            <View style={styles.errorMessageContainer}>
+              <Text style={styles.errorMessage}>{message}</Text>
             </View>
           )}
-        </Formik>
+          <View style={styles.view6}>
+            <TextInput
+              style={styles.input1}
+              placeholder="Số điện thoại"
+              onChangeText={(value) =>
+                setFormData({ ...formData, phone_number: value })
+              }
+              keyboardType="number-pad"
+              autoFocus={true}
+              value={formData.phone_number}
+            />
+          </View>
+          <View style={styles.view6}>
+            <TextInput
+              style={styles.input1}
+              placeholder="Tên"
+              onChangeText={(value) =>
+                setFormData({ ...formData, name: value })
+              }
+              value={formData.name}
+            />
+          </View>
+          <View style={styles.view6}>
+            <TextInput
+              style={styles.input1}
+              placeholder="Họ"
+              autoFocus={false}
+              onChangeText={(value) =>
+                setFormData({ ...formData, family_name: value })
+              }
+              value={formData.family_name}
+            />
+          </View>
+          <View style={styles.view6}>
+            <TextInput
+              style={styles.input1}
+              placeholder="Tuổi"
+              autoFocus={false}
+              keyboardType="number-pad"
+              onChangeText={(value) =>
+                setFormData({ ...formData, age: value })
+              }
+              value={formData.age}
+            />
+          </View>
+          <View style={styles.view10}>
+            <View>
+              <EmailIcon />
+            </View>
+            <View style={styles.view11}>
+              <TextInput
+                style={styles.input4}
+                placeholder="Email"
+                autoFocus={false}
+                onChangeText={(value) =>
+                  setFormData({ ...formData, email: value })
+                }
+                value={formData.email}
+
+              />
+            </View>
+          </View>
+          <View style={styles.view14}>
+            <Animatable.View
+              animation={passwordFocussed ? 'fadeInRight' : 'fadeInLeft'}
+              duration={400}>
+              <LockIcon />
+            </Animatable.View>
+            <TextInput
+              style={{flex: 1}}
+              placeholder="Mật khẩu"
+              onFocus={() => {
+                setPasswordFocussed(true);
+              }}
+              onChangeText={(value) =>
+                setFormData({ ...formData, password: value })
+                }
+              value={formData.password}
+              secureTextEntry={true}
+            />
+          <View style={{right: 10}}>
+            <VisibilityOffIcon />
+          </View>
+          </View>
+          <View style={styles.view15}>
+            <Text style={styles.text3}>
+              {' '}
+              Bằng cách tạo hoặc đăng nhập vào tài khoản, bạn
+            </Text>
+            <View style={styles.view16}>
+              <Text style={styles.text3}>đồng ý với</Text>
+              <Text style={styles.text4}> Điều khoản & Điều kiện</Text>
+              <Text style={styles.text3}> và</Text>
+            </View>
+            <Text style={styles.text4}>
+              Tuyên bố về quyền riêng tư của chúng tôi
+            </Text>
+          </View>
+          <View style={styles.view17}>
+            <Button
+              title="Tạo tài khoản"
+              buttonStyle={styles.button1}
+              titleStyle={styles.title1}
+              onPress={() => signUp()}
+            />
+          </View>
+        </View>
         <View style={styles.view18}>
           <Text style={styles.text5}>Hoặc</Text>
         </View>
@@ -407,5 +427,17 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginTop: -3,
+  },
+  errorMessageContainer: {
+    backgroundColor: 'red',
+    padding: 10,
+    borderRadius: 5,
+    marginBottom: 10,
+  },
+  errorMessage: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: 'bold',
+    textAlign: 'center',
   },
 });

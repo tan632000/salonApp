@@ -4,7 +4,6 @@ import React, { useState, useRef } from 'react';
 import { useDispatch } from 'react-redux';
 import { View, Text, StyleSheet, TextInput, Alert } from 'react-native';
 import { Button, SocialIcon } from 'react-native-elements';
-import * as Animatable from 'react-native-animatable';
 import { colors } from '../../global/style';
 import axiosClient from '../../apis/axiosClient';
 import { setUser } from '../../redux/features/userSlice';
@@ -13,10 +12,10 @@ import PasswordIcon from '../../assets/icons/password.svg';
 import VisibilityOffIcon from '../../assets/icons/visibility-off.svg'
 
 export default function SignInScreen() {
-  const [textInput2Focussed, setTextInput2Focussed] =
-   useState(false);
+  const [textInput2Focussed, setTextInput2Focussed] = useState(false);
   const textInput1 = useRef<TextInput>(null);
   const textInput2 = useRef<TextInput>(null);
+  const [message, setMessage] = useState('');
   const dispatch = useDispatch();
 
   const [email, setEmail] = useState('');
@@ -42,8 +41,22 @@ export default function SignInScreen() {
             );
           }
         })
-        .catch((err) => {
-          console.log(err);
+        .catch(error => {
+          if (error.response) {
+            // The request was made and the server responded with a status code
+            const { code, data } = error.response;
+            console.log(code, data);
+            setMessage(data.message);
+          } else if (error.request) {
+            // The request was made but no response was received
+            console.log('Request Error:', error.request);
+            setMessage(error.request);
+            // ...
+          } else {
+            // Something happened in setting up the request
+            console.log('Error:', error.message);
+            setMessage(error.message);
+          }
         });
     } catch (error: any) {
       console.log('error', error);
@@ -60,6 +73,11 @@ export default function SignInScreen() {
         <Text style={styles.text1}>Vui lòng nhập email và mật khẩu</Text>
         <Text style={styles.text1}>đã được đăng ký của bạn</Text>
       </View>
+      {message !== '' && (
+        <View style={styles.errorMessageContainer}>
+          <Text style={styles.errorMessage}>{message}</Text>
+        </View>
+      )}
       <View>
         <View>
           <TextInput
@@ -217,5 +235,17 @@ const styles = StyleSheet.create({
     // alignItems: 'center',
     justifyContent: 'center',
     marginTop: -3,
+  },
+  errorMessageContainer: {
+    backgroundColor: 'red',
+    padding: 10,
+    borderRadius: 5,
+    marginBottom: 20,
+  },
+  errorMessage: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: 'bold',
+    textAlign: 'center',
   },
 });

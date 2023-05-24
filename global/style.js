@@ -39,7 +39,7 @@ export const parameters = {
     color: colors.grey1,
     fontSize: 20,
     fontWeight: 'bold',
-    alignItem: 'center',
+    alignItems: 'center',
     justifyContent: 'center',
     marginTop: -3,
   },
