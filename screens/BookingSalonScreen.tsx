@@ -10,7 +10,7 @@ import StylistPicker from '../components/StylistPicker';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import { useSelector } from 'react-redux';
 import { selectLocation } from '../redux/features/locationSlice';
-import { selectUserId } from '../redux/features/userSlice';
+import { selectUserId, selectUsername } from '../redux/features/userSlice';
 import { navigationRef } from '../navigation/NavigationService';
 import { RootStackParamList } from '../Types';
 
@@ -29,7 +29,30 @@ const BookingSalonScreen = () => {
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [bookingSuccessMessage, setBookingSuccessMessage] = useState('');
+  const [bookedSalon, setBookedSalon] = useState([]);
   const userId = useSelector(selectUserId);
+  const user = useSelector(selectUsername);
+
+  useEffect(() => {
+    axiosClient
+      .get(`/appointments/${userId}/user`)
+      .then((data: any) => {
+        // Filter appointments by date
+        const desiredDate = new Date();
+        const filteredAppointments = data.filter((appointment: any) => {
+          const appointmentDate = new Date(appointment.time);
+          return (
+            appointmentDate.getDate() === desiredDate.getDate() &&
+            appointmentDate.getMonth() === desiredDate.getMonth() &&
+            appointmentDate.getFullYear() === desiredDate.getFullYear() &&
+            appointment.status === 1
+          );
+        });
+
+        setBookedSalon(filteredAppointments);
+      })
+      .catch(err => console.log(err));
+  }, []);
 
   const showDatePicker = () => {
     setDatePickerVisibility(true);
@@ -80,69 +103,94 @@ const BookingSalonScreen = () => {
         }
       });
   };
+
   return (
     <KeyboardAvoidingView style={styles.container} behavior="padding">
-      <ScrollView>
-        <Text style={styles.heading}>Đặt lịch</Text>
-        <Text style={styles.label}>1. Chọn Salon</Text>
-        <SalonPicker
-          location={location}
-          listSalons={listSalons}
-          selectedSalon={salon || selectedSalon}
-          onSalonSelect={setSelectedSalon}
-        />
-
-        {selectedSalon && (
+      {
+        bookedSalon.length > 0 ? (
           <>
-            <Text style={styles.label}>2. Chọn dịch vụ</Text>
-            <ServicePicker
-              salonId={selectedSalon._id}
-              selectedService={selectedService}
-              onServiceSelect={setSelectedService}
-            />
+            <Text style={styles.heading}>Thông tin đặt lịch</Text>
+            <Text style={styles.infoLabel}>Họ và tên khách hàng:</Text>
+            <Text style={styles.infoText}>{user.firstName + ' ' + user.lastName}</Text>
+            <Text style={styles.infoLabel}>Salon:</Text>
+            <Text style={styles.infoText}>{bookedSalon[0].salonName}</Text>
+            <Text style={styles.infoLabel}>Địa chỉ:</Text>
+            <Text style={styles.infoText}>{bookedSalon[0].address}</Text>
+            <Text style={styles.infoLabel}>Thời gian:</Text>
+            <Text style={styles.infoText}>{bookedSalon[0].time.replace("T", " ").replace(/\.\d+/, "").replace("Z", "")}</Text>
+            <Text style={styles.infoLabel}>Dịch vụ lựa chọn:</Text>
+            <Text style={styles.infoText}>{bookedSalon[0].serviceName}</Text>
+            <Text style={styles.infoLabel}>Stylist đăng kí:</Text>
+            <Text style={styles.infoText}>{bookedSalon[0].stylistName}</Text>
+            <Text style={styles.infoLabel}>Tổng số tiền dự đoán:</Text>
+            <Text style={styles.infoText}>{bookedSalon[0].money} VNĐ</Text>
           </>
-        )}
-
-        {selectedService && (
+        ) : (
           <>
-            <Text style={styles.label}>3. Chọn Stylist và thời gian</Text>
-            <StylistPicker
-              serviceId={selectedService._id}
-              selectedStylist={selectedStylist}
-              onStylistSelect={setSelectedStylist}
-            />
-            <Button title="Chọn Thời gian" onPress={showDatePicker} />
-            {selectedDate && (
-              <Text style={styles.selectedDate}>
-                Thời gian bạn chọn: {selectedDate.toLocaleString('vi-VN', { timeZone: 'UTC' })}
-              </Text>
-            )}
-            <DateTimePickerModal
-              isVisible={isDatePickerVisible}
-              mode="time"
-              onConfirm={handleConfirm}
-              onCancel={hideDatePicker}
-            />
-            <Text style={styles.label}>Ghi chú:</Text>
-            <TextInput
-              style={styles.notesInput}
-              placeholder="Nhập ghi chú của bạn"
-              value={userNotes}
-              onChangeText={setUserNotes}
-            />
-          </>
-        )}
+            <ScrollView>
+              <Text style={styles.heading}>Đặt lịch</Text>
+              <Text style={styles.label}>1. Chọn Salon</Text>
+              <SalonPicker
+                location={location}
+                listSalons={listSalons}
+                selectedSalon={salon || selectedSalon}
+                onSalonSelect={setSelectedSalon}
+              />
 
-        {selectedStylist && selectedDate && (
-          <Button
-            title="Hoàn tất đặt lịch"
-            onPress={handleFinishBooking}
-            containerStyle={styles.buttonContainer}
-            buttonStyle={styles.button}
-          />
-        )}
-        {bookingSuccessMessage && <Text style={styles.successMessage}>{bookingSuccessMessage}</Text>}
-      </ScrollView>
+              {selectedSalon && (
+                <>
+                  <Text style={styles.label}>2. Chọn dịch vụ</Text>
+                  <ServicePicker
+                    salonId={selectedSalon._id}
+                    selectedService={selectedService}
+                    onServiceSelect={setSelectedService}
+                  />
+                </>
+              )}
+
+              {selectedService && (
+                <>
+                  <Text style={styles.label}>3. Chọn Stylist và thời gian</Text>
+                  <StylistPicker
+                    serviceId={selectedService._id}
+                    selectedStylist={selectedStylist}
+                    onStylistSelect={setSelectedStylist}
+                  />
+                  <Button title="Chọn Thời gian" onPress={showDatePicker} />
+                  {selectedDate && (
+                    <Text style={styles.selectedDate}>
+                      Thời gian bạn chọn: {selectedDate.toLocaleString('vi-VN', { timeZone: 'UTC' })}
+                    </Text>
+                  )}
+                  <DateTimePickerModal
+                    isVisible={isDatePickerVisible}
+                    mode="time"
+                    onConfirm={handleConfirm}
+                    onCancel={hideDatePicker}
+                  />
+                  <Text style={styles.label}>Ghi chú:</Text>
+                  <TextInput
+                    style={styles.notesInput}
+                    placeholder="Nhập ghi chú của bạn"
+                    value={userNotes}
+                    onChangeText={setUserNotes}
+                  />
+                </>
+              )}
+
+              {selectedStylist && selectedDate && (
+                <Button
+                  title="Hoàn tất đặt lịch"
+                  onPress={handleFinishBooking}
+                  containerStyle={styles.buttonContainer}
+                  buttonStyle={styles.button}
+                />
+              )}
+              {bookingSuccessMessage && <Text style={styles.successMessage}>{bookingSuccessMessage}</Text>}
+            </ScrollView>
+          </>
+        )
+      }
     </KeyboardAvoidingView>
   );
 };
@@ -195,6 +243,15 @@ const styles = StyleSheet.create({
   successMessage: {
     textAlign: 'center',
     color: 'green',
+  },
+  infoContainer: {
+    marginTop: 20,
+  },
+  infoLabel: {
+    fontWeight: 'bold',
+  },
+  infoText: {
+    marginTop: 5,
   },
 });
 
