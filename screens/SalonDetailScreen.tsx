@@ -74,7 +74,7 @@ export default function SalonDetailScreen() {
                 <Text style={{ marginRight: 5 }}>Rating:</Text>
                 <Text>{comment.salonStars}</Text>
               </View>
-              <Text style={{ marginTop: 5 }}>{comment.createdAt}</Text>
+              <Text style={{ marginTop: 5 }}>{comment.createdAt.replace("T", " ").replace(/\.\d+/, "").replace("Z", "")}</Text>
             </View>
           ))}
           <TouchableOpacity

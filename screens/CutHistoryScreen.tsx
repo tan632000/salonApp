@@ -89,10 +89,10 @@ const CutHistoryScreen: React.FC = () => {
     return (
       <View style={styles.appointmentContainer}>
         <Text style={styles.appointmentText}>Address: {item.address}</Text>
-        <Text style={styles.appointmentText}>Time: {item.time}</Text>
+        <Text style={styles.appointmentText}>Time: {item.time.replace("T", " ").replace(/\.\d+/, "").replace("Z", "")}</Text>
         <Text style={styles.appointmentText}>Stylist: {item.stylistName}</Text>
         <Text style={styles.appointmentText}>Service: {item.serviceName}</Text>
-        <Text style={styles.appointmentText}>Price: {item.money}</Text>
+        <Text style={styles.appointmentText}>Price: {item.money} VNĐ</Text>
       </View>
     );
   };
