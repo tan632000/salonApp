@@ -44,6 +44,7 @@ const CutHistoryScreen: React.FC = () => {
   const [salonId, setSalonId] = useState<string>('');
   const [stylistId, setStylistId] = useState<string>('');
   const [commented, setCommented] = useState<Comment[]>([]);
+  const [bookedSalon, setBookedSalon] = useState([]);
 
   useEffect(() => {
     axiosClient
@@ -63,6 +64,18 @@ const CutHistoryScreen: React.FC = () => {
         setAppointments(
           data.filter((appointment: Appointment) => appointment.status === 2),
         );
+         // Filter appointments by date
+         const desiredDate = new Date();
+         const filteredAppointments = data.filter((appointment: any) => {
+           const appointmentDate = new Date(appointment.time);
+           return (
+             appointmentDate.getDate() === desiredDate.getDate() &&
+             appointmentDate.getMonth() === desiredDate.getMonth() &&
+             appointmentDate.getFullYear() === desiredDate.getFullYear() &&
+             appointment.status === 1
+           );
+         });
+         setBookedSalon(filteredAppointments);
       })
       .catch(err => console.log(err));
   }, []);
@@ -130,7 +143,9 @@ const CutHistoryScreen: React.FC = () => {
       data={[{ key: 'content' }]}
       renderItem={() => (
         <View style={styles.container}>
-          <View style={styles.ratingContainer}>
+          {
+            bookedSalon.length > 0 && <>
+            <View style={styles.ratingContainer}>
             <Text style={styles.ratingLabel}>
               Mời anh đánh giá chất lượng phục vụ
             </Text>
@@ -164,6 +179,8 @@ const CutHistoryScreen: React.FC = () => {
               <Text style={styles.buttonText}>LƯU ĐÁNH GIÁ</Text>
             </TouchableOpacity>
           </View>
+            </>
+          }
           {
             commented.length > 0 && (
             <>
