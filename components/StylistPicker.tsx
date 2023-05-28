@@ -85,7 +85,7 @@ export default function StylistPicker({
 
   return (
     <View>
-      {stylists &&
+      {stylists ?
         stylists.map(stylist => (
           <TouchableOpacity
             key={stylist._id}
@@ -100,7 +100,11 @@ export default function StylistPicker({
               <StarRating rating={stylist.avgStylistStars} />
             </View>
           </TouchableOpacity>
-        ))}
+        ))
+        : (
+          <Text>Stylist is busy now. Please choose an other.</Text>
+        )
+      }
     </View>
   );
 }

@@ -45,14 +45,19 @@ export default function ServicePicker({
 
   return (
     <View style={styles.container}>
-      <Picker
-        selectedValue={selectedService || undefined}
-        onValueChange={handleServicePress}
-        style={styles.picker}>
-        {services.map(service => (
-          <Picker.Item key={service._id} label={service.name} value={service} />
-        ))}
-      </Picker>
+      {services.length > 0 ? (
+        <Picker
+          selectedValue={selectedService || undefined}
+          onValueChange={handleServicePress}
+          style={styles.picker}
+        >
+          {services.map(service => (
+            <Picker.Item key={service._id} label={service.name} value={service} />
+          ))}
+        </Picker>
+      ) : (
+        <Text>Salon has not imported any Service. Please add Service in the Management System.</Text>
+      )}
       {selectedService && (
         <>
           <ImageSlider images={selectedService.images} />
