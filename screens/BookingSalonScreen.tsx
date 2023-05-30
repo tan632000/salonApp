@@ -101,7 +101,8 @@ const BookingSalonScreen = () => {
             navigationRef.current?.goBack();
           }, 3000);
         }
-      });
+      })
+      .catch((err) => console.log(err));
   };
 
   return (

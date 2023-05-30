@@ -118,6 +118,7 @@ const BusinessConsoleScreeen: React.FC = () => {
           }, 200)
         }
       })
+      .catch((err) => console.log(err));
     }
   }
 

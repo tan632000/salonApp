@@ -56,7 +56,7 @@ export default function ServicePicker({
           ))}
         </Picker>
       ) : (
-        <Text>Salon has not imported any Service. Please add Service in the Management System.</Text>
+        <Text>Salon chưa có bất cứ dịch vụ nào. Vui lòng thêm dịch vụ trên trang chủ của hệ thống.</Text>
       )}
       {selectedService && (
         <>
