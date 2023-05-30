@@ -15,7 +15,7 @@ export default function DrawerNavigator() {
         name="RootClientTabs"
         component={RootClientTabs}
         options={({ route }) => ({
-          title: 'Client',
+          title: 'Khách hàng',
           headerShown: false,
           drawerIcon: () => (
             <HomeIcon />
@@ -26,7 +26,7 @@ export default function DrawerNavigator() {
         name="BusinessConsoleScreen"
         component={BusinessConsoleScreen}
         options={({ route, navigation }) => ({
-          title: 'Business console',
+          title: 'Kích hoạt dịch vụ',
           drawerIcon: ({ focussed, size }) => (
             <BusinessIcon />
           ),

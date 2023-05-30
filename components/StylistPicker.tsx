@@ -82,10 +82,10 @@ export default function StylistPicker({
       </View>
     );
   }
-
+  console.log('stylists', stylists);
   return (
     <View>
-      {stylists ?
+      {stylists.length > 0 ?
         stylists.map(stylist => (
           <TouchableOpacity
             key={stylist._id}
@@ -102,7 +102,7 @@ export default function StylistPicker({
           </TouchableOpacity>
         ))
         : (
-          <Text>Stylist is busy now. Please choose an other.</Text>
+          <Text style={{ marginBottom: 15 }}>Stylist đã được đặt lịch hết. Mời bạn sử dụng dịch vụ khác của Salon hoặc lựa chọn Salon khác.</Text>
         )
       }
     </View>

@@ -8,7 +8,6 @@ import { Picker } from '@react-native-picker/picker'
 import axiosClient from '../apis/axiosClient'
 import { useSelector } from 'react-redux'
 import { selectUserId } from '../redux/features/userSlice'
-import { navigationRef } from '../navigation/NavigationService'
 
 interface Salon {
   [x: string]: any
@@ -176,6 +175,7 @@ const BusinessConsoleScreeen: React.FC = () => {
                     <Text>Salon: {selectedSalon.name}</Text>
                     <Text>Địa chỉ: {selectedSalon.address}</Text>
                     <Text>Số điện thoại: {selectedSalon.phone}</Text>
+                    <Text>Vui lòng thanh toán chuyển khoản <Text style={{fontWeight: '600'}}>1.000.000 VNĐ</Text> để kích hoạt dịch vụ quảng bá Salon</Text>
                     <View style={styles.imageContainer}>
                       <Image source={{ uri: 'https://res.cloudinary.com/c-ng-ty-tnhh-cic-vi-t-nam-chapter/image/upload/v1683033570/e1da691745c09a9ec3d1_akvkhs.jpg' }} style={styles.qrCode} />
                       {image && <Image source={{uri: image}} style={styles.qrCode} />}

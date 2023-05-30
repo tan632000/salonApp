@@ -70,7 +70,7 @@ export default function DrawerElement(props: any) {
                   }}>
                   1
                 </Text>
-                <Text style={{ color: colors.cardBackground, fontSize: 14 }}>My favorites</Text>
+                <Text style={{ color: colors.cardBackground, fontSize: 14 }}>Ưa thích</Text>
               </View>
             </View>
             <View style={{ flexDirection: 'row' }}>
@@ -88,42 +88,41 @@ export default function DrawerElement(props: any) {
                   }}>
                   0
                 </Text>
-                <Text style={{ color: colors.cardBackground, fontSize: 14 }}>My Cart</Text>
+                <Text style={{ color: colors.cardBackground, fontSize: 14 }}>Đơn hàng của tôi</Text>
               </View>
             </View>
           </View>
         </View>
         <DrawerItemList {...props} />
         <DrawerItem
-          label="Payment"
+          label="Thanh toán"
           icon={() => <CreditCardIcon />}
           onPress={() => {
             console.log(1111);
           }}
         />
         <DrawerItem
-          label="Promotions"
+          label="Khuyến mãi"
           icon={() => <HeartIcon />}
           onPress={() => {
             console.log(1111);
           }}
         />
         <DrawerItem
-          label="Settings"
+          label="Cài đặt"
           icon={() => <CogOutlineIcon />}
           onPress={() => {
             console.log(1111);
           }}
         />
         <DrawerItem
-          label="Help"
+          label="Giúp đỡ"
           icon={() => <LifeBuoyIcon />}
           onPress={() => {
             console.log(1111);
           }}
         />
         <View style={{ borderRadius: 1, borderTopColor: colors.grey5 }}>
-          <Text style={styles.preferences}>References</Text>
           <View style={styles.switchText}>
             <Text style={styles.darkThemeText}>Dark Theme</Text>
             <View style={{ paddingRight: 10 }}>
