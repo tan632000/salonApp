@@ -101,7 +101,7 @@ const BookingSalonScreen = () => {
       })
       .then((data: any) => {
         if (data.appointment) {
-          setBookingSuccessMessage('Booking successful!');
+          setBookingSuccessMessage('Đặt lịch thành công');
           setTimeout(() => {
             navigationRef.current?.goBack();
           }, 3000);
