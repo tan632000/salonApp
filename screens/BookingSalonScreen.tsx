@@ -48,7 +48,6 @@ const BookingSalonScreen = () => {
             appointment.status === 1
           );
         });
-
         setBookedSalon(filteredAppointments);
       })
       .catch(err => console.log(err));
@@ -100,6 +99,8 @@ const BookingSalonScreen = () => {
           setTimeout(() => {
             navigationRef.current?.goBack();
           }, 3000);
+        } else {
+          setBookingSuccessMessage(data.error);
         }
       })
       .catch((err) => console.log(err));
@@ -165,7 +166,7 @@ const BookingSalonScreen = () => {
                   )}
                   <DateTimePickerModal
                     isVisible={isDatePickerVisible}
-                    mode="time"
+                    mode="datetime"
                     onConfirm={handleConfirm}
                     onCancel={hideDatePicker}
                   />

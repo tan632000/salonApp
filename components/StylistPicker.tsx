@@ -82,7 +82,6 @@ export default function StylistPicker({
       </View>
     );
   }
-  console.log('stylists', stylists);
   return (
     <View>
       {stylists.length > 0 ?
