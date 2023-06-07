@@ -29,6 +29,7 @@ const BookingSalonScreen = () => {
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [bookingSuccessMessage, setBookingSuccessMessage] = useState('');
+  const [bookingErrMessage, setBookingErrMessage] = useState('');
   const [bookedSalon, setBookedSalon] = useState([]);
   const userId = useSelector(selectUserId);
   const user = useSelector(selectUsername);
@@ -81,7 +82,12 @@ const BookingSalonScreen = () => {
   }, []);
 
   const handleFinishBooking = () => {
-    // Handle booking logic here
+    // Check if the appointment time is within the desired range
+    const appointmentHour = selectedDate && selectedDate.getHours();
+    if (appointmentHour && (appointmentHour > 7 && appointmentHour < 15)) {
+      setBookingErrMessage('Vui lòng đặt lịch trong khoảng thời gian từ 8 đến 18 giờ. Mời bạn chọn lại thời gian.');
+      return; // Exit the function to prevent the POST request
+    }
     axiosClient
       .post('/appointments', {
         salonId: selectedSalon._id,
@@ -99,11 +105,22 @@ const BookingSalonScreen = () => {
           setTimeout(() => {
             navigationRef.current?.goBack();
           }, 3000);
-        } else {
-          setBookingSuccessMessage(data.error);
         }
       })
-      .catch((err) => console.log(err));
+      .catch(error => {
+        if (error.response) {
+          // The request was made and the server responded with a status code
+          const { data } = error.response;
+          setBookingErrMessage(data.error);
+        } else if (error.request) {
+          // The request was made but no response was received
+          setBookingErrMessage(error.request);
+          // ...
+        } else {
+          // Something happened in setting up the request
+          setBookingErrMessage(error.message);
+        }
+      });
   };
 
   return (
@@ -189,6 +206,7 @@ const BookingSalonScreen = () => {
                 />
               )}
               {bookingSuccessMessage && <Text style={styles.successMessage}>{bookingSuccessMessage}</Text>}
+              {bookingErrMessage && <Text style={styles.errMessage}>{bookingErrMessage}</Text>}
             </ScrollView>
           </>
         )
@@ -231,7 +249,7 @@ const styles = StyleSheet.create({
   button: {
     backgroundColor: 'orange',
     borderRadius: 10,
-    marginBottom: 50,
+    marginBottom: 20,
   },
   notesInput: {
     height: 80,
@@ -242,10 +260,6 @@ const styles = StyleSheet.create({
     padding: 10,
     marginBottom: 20,
   },
-  successMessage: {
-    textAlign: 'center',
-    color: 'green',
-  },
   infoContainer: {
     marginTop: 20,
   },
@@ -254,6 +268,16 @@ const styles = StyleSheet.create({
   },
   infoText: {
     marginTop: 5,
+  },
+  successMessage: {
+    textAlign: 'center',
+    color: 'green',
+    marginBottom: 10,
+  },
+  errMessage: {
+    textAlign: 'center',
+    color: 'red',
+    marginBottom: 10,
   },
 });
 
