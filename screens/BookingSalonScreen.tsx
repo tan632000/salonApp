@@ -88,6 +88,7 @@ const BookingSalonScreen = () => {
       setBookingErrMessage('Vui lòng đặt lịch trong khoảng thời gian từ 8 đến 18 giờ. Mời bạn chọn lại thời gian.');
       return; // Exit the function to prevent the POST request
     }
+    setBookingErrMessage('');
     axiosClient
       .post('/appointments', {
         salonId: selectedSalon._id,
