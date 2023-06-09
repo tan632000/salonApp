@@ -38,6 +38,7 @@ interface Appointment {
 const CutHistoryScreen: React.FC = () => {
   const userId = useSelector(selectUserId) as string;
   const [appointments, setAppointments] = useState<Appointment[]>([]);
+  const [appointmentBooked, setAppointmentBooked] = useState<Appointment[]>([]);
   const [salonRating, setSalonRating] = useState<number>(0);
   const [stylistRating, setStylistRating] = useState<number>(0);
   const [comment, setComment] = useState<string>('');
@@ -62,8 +63,14 @@ const CutHistoryScreen: React.FC = () => {
       .get(`/appointments/${userId}/user`)
       .then((data: any) => {
         setAppointments(
-          data.filter((appointment: Appointment) => appointment.status === 2),
+          data.filter((appointment: Appointment) => appointment.status === 1),
         );
+      })
+      .catch(err => console.log(err));
+
+      axiosClient
+      .get(`/appointments/${userId}/user`)
+      .then((data: any) => {
          // Filter appointments by date
          const desiredDate = new Date();
          const filteredAppointments = data.filter((appointment: any) => {
@@ -79,6 +86,7 @@ const CutHistoryScreen: React.FC = () => {
       })
       .catch(err => console.log(err));
   }, []);
+
 
   const CommentList: React.FC = () => {
     return (
@@ -115,6 +123,14 @@ const CutHistoryScreen: React.FC = () => {
       setSalonId(appointments[0].salonId);
       setStylistId(appointments[0].stylistId);
     }
+    axiosClient
+      .get(`/appointments/${userId}/user`)
+      .then((data: any) => {
+        setAppointmentBooked(
+          data.filter((appointment: Appointment) => appointment.status === 2),
+        );
+      })
+      .catch(err => console.log(err));
   }, [appointments]);
 
   const handleSubmit = () => {
@@ -188,7 +204,7 @@ const CutHistoryScreen: React.FC = () => {
               <View style={styles.appointmentContainer}>
                 <Text style={styles.appointmentTitle}>Appointment Details:</Text>
                 <FlatList
-                  data={appointments}
+                  data={appointmentBooked}
                   keyExtractor={item => item.id.toString()}
                   renderItem={renderItem} />
               </View>
