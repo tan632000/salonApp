@@ -43,7 +43,7 @@ const BookingSalonScreen = () => {
         const filteredAppointments = data.filter((appointment: any) => {
           const appointmentDate = new Date(appointment.time);
           return (
-            appointmentDate.getDate() === desiredDate.getDate() &&
+            // appointmentDate.getDate() === desiredDate.getDate() &&
             appointmentDate.getMonth() === desiredDate.getMonth() &&
             appointmentDate.getFullYear() === desiredDate.getFullYear() &&
             appointment.status === 1
